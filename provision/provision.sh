@@ -38,23 +38,21 @@ apt_package_check_list=(
   php5-dev
 
   # Extra PHP modules that we find useful
-  php5-memcache
   php5-imagick
   php5-mcrypt
-  php5-mysql
+  php5-mysqlnd
   php5-imap
   php5-curl
   php-pear
   php5-gd
+  php5-xmlrpc
+  php5-xsl
 
   # nginx is installed as the default web server
   nginx
 
-  # memcached is made available for object caching
-  memcached
-
   # mysql is the default database
-  mysql-server
+  mariadb-server
 
   # other packages that come in handy
   imagemagick
@@ -180,8 +178,8 @@ package_install() {
   # Use debconf-set-selections to specify the default password for the root MySQL
   # account. This runs on every provision, even if MySQL has been installed. If
   # MySQL is already installed, it will not affect anything.
-  echo mysql-server mysql-server/root_password password "root" | debconf-set-selections
-  echo mysql-server mysql-server/root_password_again password "root" | debconf-set-selections
+  echo mariadb-server-10.0 mysql-server/root_password password "root" | debconf-set-selections
+  echo mariadb-server-10.0 mysql-server/root_password_again password "root" | debconf-set-selections
 
   # Postfix
   #
@@ -209,6 +207,10 @@ package_install() {
     # Retrieve the Nginx signing key from nginx.org
     echo "Applying Nginx signing key..."
     wget --quiet "http://nginx.org/keys/nginx_signing.key" -O- | apt-key add -
+
+    # Retrieve the MariaDB signing key from ubuntu
+    apt-key adv --quiet --keyserver "hkp://keyserver.ubuntu.com:80" --recv-key 0xcbcb082a1bb943db 2>&1 | grep "gpg:"
+    apt-key export 0xcbcb082a1bb943db | apt-key add -
 
     # Apply the nodejs assigning key
     apt-key adv --quiet --keyserver "hkp://keyserver.ubuntu.com:80" --recv-key C7917B12 2>&1 | grep "gpg:"
@@ -362,9 +364,9 @@ phpfpm_setup() {
   echo " * Copied /srv/config/php5-fpm-config/xdebug.ini        to /etc/php5/mods-available/xdebug.ini"
 
   # Copy memcached configuration from local
-  cp "/srv/config/memcached-config/memcached.conf" "/etc/memcached.conf"
+  # cp "/srv/config/memcached-config/memcached.conf" "/etc/memcached.conf"
 
-  echo " * Copied /srv/config/memcached-config/memcached.conf   to /etc/memcached.conf"
+  # echo " * Copied /srv/config/memcached-config/memcached.conf   to /etc/memcached.conf"
 }
 
 mysql_setup() {
@@ -476,7 +478,7 @@ services_restart() {
   # Make sure the services we expect to be running are running.
   echo -e "\nRestart services..."
   service nginx restart
-  service memcached restart
+  # service memcached restart
   service mailcatcher restart
 
   # Disable PHP Xdebug module by default
@@ -796,7 +798,7 @@ echo " "
 echo "Installing/updating wp-cli and debugging tools"
 
 wp_cli
-memcached_admin
+# memcached_admin
 opcached_status
 webgrind_install
 php_codesniff
