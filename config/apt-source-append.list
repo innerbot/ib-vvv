@@ -5,6 +5,9 @@
 deb http://nginx.org/packages/mainline/ubuntu/ trusty nginx
 deb-src http://nginx.org/packages/mainline/ubuntu/ trusty nginx
 
+# Provides MariaDB 10
+deb [arch=amd64,i386] http://mirrors.accretive-networks.net/mariadb/repo/10.0/ubuntu trusty main
+
 # Provides Node.js
 deb http://ppa.launchpad.net/chris-lea/node.js/ubuntu trusty main
 deb-src http://ppa.launchpad.net/chris-lea/node.js/ubuntu trusty main
