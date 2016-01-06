@@ -12,3 +12,10 @@ local.wordpress.dev
 local.wordpress-trunk.dev
 src.wordpress-develop.dev
 build.wordpress-develop.dev
+
+# add your own dev domainnames below this line
+# examples: ttacportal.2016
+# 			specialplugin.dev
+#			wptheme.localhost
+#
+	
