@@ -2,6 +2,9 @@
 *.sublime*
 .DS_Store
 .idea
+.sass-cache
+node_modules
+bower_components
 
 # Because this really is a working directory, ignore vagrant's files
 /.vagrant
@@ -10,33 +13,33 @@
 /Customfile
 
 # Allow for custom provisioning scripts that are not included with the repo
-/provision/provision-custom.sh
-/provision/provision-pre.sh
-/provision/provision-post.sh
-/provision/github.token
+/vm/provision/provision-custom.sh
+/vm/provision/provision-pre.sh
+/vm/provision/provision-post.sh
+/vm/provision/github.token
 
 # Ignore custom trigger scripts in config/homebin.
-/config/homebin/vagrant_halt_custom
-/config/homebin/vagrant_suspend_custom
-/config/homebin/vagrant_destroy_custom
+/vm/config/homebin/vagrant_halt_custom
+/vm/config/homebin/vagrant_suspend_custom
+/vm/config/homebin/vagrant_destroy_custom
 
 # No need to share individual site configs with each other
-/config/nginx-config/sites/*.conf
+/vm/config/nginx-config/sites/*.conf
 
 # Ignore anything in the 'custom' directory in config
-/config/custom/*
+/vm/config/custom/*
 
 # Ignore a custom bash_prompt if it exists
-/config/bash_prompt
+/vm/config/bash_prompt
 
 # No need to share our mysql data with each other
-/database/data/*
+/vm/database/data/*
 
 # Log files should be ignored.
-/log/*.log
+/vm/log/*.log
 
 # No need to share our individual sites with each other
-/www/*
+/vm/www/*
 
 # And no need to share individual SQL files with each other
 *.sql
@@ -45,17 +48,17 @@
 # BUT....
 
 # We do have some default nginx configs that should be included
-!/config/nginx-config/sites/default.conf
+!/vm/config/nginx-config/sites/default.conf
 
 # And we do have a default SQL file that should be included
-!/database/init.sql
+!/vm/database/init.sql
 
 # And we provide our default host names in a dat file.
-!/www/vvv-hosts
+!/vm/www/vvv-hosts
 
 # And a few of our web directories are important to share.
-/www/default/*
-!/www/default/index.php
+/vm/www/default/*
+!/vm/www/default/index.php
 
 # But not the custom phpMyAdmin config in the database-admin directory.
-/www/default/database-admin/config.inc.custom.php
+/vm/www/default/database-admin/config.inc.custom.php
