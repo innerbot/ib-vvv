@@ -92,7 +92,7 @@ Vagrant.configure("2") do |config|
   # individual domains separated by whitespace in subdirectories of www/.
   if defined?(VagrantPlugins::HostsUpdater)
     # Recursively fetch the paths to all vvv-hosts files under the www/ directory.
-    paths = Dir[File.join(vagrant_dir_files, 'www', '**', 'vvv-hosts')]
+    paths = Dir[File.join(vagrant_files_dir, 'www', '**', 'vvv-hosts')]
 
     # Parse the found vvv-hosts files for host names.
     hosts = paths.map do |path|
@@ -166,7 +166,7 @@ Vagrant.configure("2") do |config|
   # a mapped directory inside the VM will be created that contains these files.
   # This directory is used to maintain default database scripts as well as backed
   # up mysql dumps (SQL files) that are to be imported automatically on vagrant up
-  config.vm.synced_folder "database/", "/srv/database"
+  config.vm.synced_folder File.join( vagrant_files_dir, "database/" ), "/srv/database"
 
   # If the mysql_upgrade_info file from a previous persistent database mapping is detected,
   # we'll continue to map that directory as /var/lib/mysql inside the virtual machine. Once
@@ -174,18 +174,18 @@ Vagrant.configure("2") do |config|
   # is now available inside the virtual machine to backup all databases for future use. This
   # command is automatically issued on halt, suspend, and destroy if the vagrant-triggers
   # plugin is installed.
-  if File.exists?(File.join(vagrant_dir,'database/data/mysql_upgrade_info')) then
+  if File.exists?( File.join( vagrant_files_dir,'database/data/mysql_upgrade_info') ) then
     if vagrant_version >= "1.3.0"
-      config.vm.synced_folder "database/data/", "/var/lib/mysql", :mount_options => [ "dmode=777", "fmode=777" ]
+      config.vm.synced_folder File.join( vagrant_files_dir, "database/data/" ), "/var/lib/mysql", :mount_options => [ "dmode=777", "fmode=777" ]
     else
-      config.vm.synced_folder "database/data/", "/var/lib/mysql", :extra => 'dmode=777,fmode=777'
+      config.vm.synced_folder File.join( vagrant_files_dir, "database/data/" ), "/var/lib/mysql", :extra => 'dmode=777,fmode=777'
     end
 
     # The Parallels Provider does not understand "dmode"/"fmode" in the "mount_options" as
     # those are specific to Virtualbox. The folder is therefore overridden with one that
     # uses corresponding Parallels mount options.
     config.vm.provider :parallels do |v, override|
-      override.vm.synced_folder "database/data/", "/var/lib/mysql", :mount_options => []
+      override.vm.synced_folder File.join( vagrant_files_dir, "database/data/" ), "/var/lib/mysql", :mount_options => []
     end
   end
 
@@ -195,13 +195,13 @@ Vagrant.configure("2") do |config|
   # a mapped directory inside the VM will be created that contains these files.
   # This directory is currently used to maintain various config files for php and
   # nginx as well as any pre-existing database files.
-  config.vm.synced_folder "config/", "/srv/config"
+  config.vm.synced_folder File.join( vagrant_files_dir, "config/" ), "/srv/config"
 
   # /srv/log/
   #
   # If a log directory exists in the same directory as your Vagrantfile, a mapped
   # directory inside the VM will be created for some generated log files.
-  config.vm.synced_folder "log/", "/srv/log", :owner => "www-data"
+  config.vm.synced_folder File.join( vagrant_files_dir, "log/" ), "/srv/log", :owner => "www-data"
 
   # /srv/www/
   #
@@ -209,9 +209,9 @@ Vagrant.configure("2") do |config|
   # inside the VM will be created that acts as the default location for nginx sites. Put all
   # of your project files here that you want to access through the web server
   if vagrant_version >= "1.3.0"
-    config.vm.synced_folder "www/", "/srv/www/", :owner => "www-data", :mount_options => [ "dmode=775", "fmode=774" ]
+    config.vm.synced_folder File.join( vagrant_files_dir, "www/" ), "/srv/www/", :owner => "www-data", :mount_options => [ "dmode=775", "fmode=774" ]
   else
-    config.vm.synced_folder "www/", "/srv/www/", :owner => "www-data", :extra => 'dmode=775,fmode=774'
+    config.vm.synced_folder File.join( vagrant_files_dir, "www/" ), "/srv/www/", :owner => "www-data", :extra => 'dmode=775,fmode=774'
   end
 
   config.vm.provision "fix-no-tty", type: "shell" do |s|
@@ -223,7 +223,7 @@ Vagrant.configure("2") do |config|
   # those are specific to Virtualbox. The folder is therefore overridden with one that
   # uses corresponding Parallels mount options.
   config.vm.provider :parallels do |v, override|
-    override.vm.synced_folder "www/", "/srv/www/", :owner => "www-data", :mount_options => []
+    override.vm.synced_folder File.join( vagrant_files_dir, "www/" ), "/srv/www/", :owner => "www-data", :mount_options => []
   end
 
   # The Hyper-V Provider does not understand "dmode"/"fmode" in the "mount_options" as
@@ -231,7 +231,7 @@ Vagrant.configure("2") do |config|
   # replaced with SMB shares. Here we switch all the shared folders to us SMB and then
   # override the www folder with options that make it Hyper-V compatible.
   config.vm.provider :hyperv do |v, override|
-    override.vm.synced_folder "www/", "/srv/www/", :owner => "www-data", :mount_options => ["dir_mode=0775","file_mode=0774","forceuid","noperm","nobrl","mfsymlinks"]
+    override.vm.synced_folder File.join( vagrant_files_dir, "www/" ), "/srv/www/", :owner => "www-data", :mount_options => ["dir_mode=0775","file_mode=0774","forceuid","noperm","nobrl","mfsymlinks"]
     # Change all the folder to use SMB instead of Virtual Box shares
     override.vm.synced_folders.each do |id, options|
       if ! options[:type]
@@ -260,7 +260,7 @@ Vagrant.configure("2") do |config|
   # should run before the shell commands laid out in provision.sh (or your provision-custom.sh
   # file) should go in this script. If it does not exist, no extra provisioning will run.
   if File.exists?(File.join(vagrant_dir,'provision','provision-pre.sh')) then
-    config.vm.provision :shell, :path => File.join( "provision", "provision-pre.sh" )
+    config.vm.provision :shell, :path => File.join( File.join( vagrant_files_dir, "provision" ), "provision-pre.sh" )
   end
 
   # provision.sh or provision-custom.sh
@@ -269,10 +269,10 @@ Vagrant.configure("2") do |config|
   # provision directory. If it is detected that a provision-custom.sh script has been
   # created, that is run as a replacement. This is an opportunity to replace the entirety
   # of the provisioning provided by default.
-  if File.exists?(File.join(vagrant_dir,'provision','provision-custom.sh')) then
-    config.vm.provision :shell, :path => File.join( "provision", "provision-custom.sh" )
+  if File.exists?(File.join( File.join( vagrant_files_dir,'provision' ),'provision-custom.sh')) then
+    config.vm.provision :shell, :path => File.join( File.join( vagrant_files_dir, "provision" ), "provision-custom.sh" )
   else
-    config.vm.provision :shell, :path => File.join( "provision", "provision.sh" )
+    config.vm.provision :shell, :path => File.join( File.join( vagrant_files_dir, "provision" ), "provision.sh" )
   end
 
   # provision-post.sh acts as a post-hook to the default provisioning. Anything that should
@@ -280,7 +280,7 @@ Vagrant.configure("2") do |config|
   # put into this file. This provides a good opportunity to install additional packages
   # without having to replace the entire default provisioning script.
   if File.exists?(File.join(vagrant_dir,'provision','provision-post.sh')) then
-    config.vm.provision :shell, :path => File.join( "provision", "provision-post.sh" )
+    config.vm.provision :shell, :path => File.join( File.join( vagrant_files_dir, "provision" ), "provision-post.sh" )
   end
 
   # Always start MySQL on boot, even when not running the full provisioner
